@@ -5,8 +5,8 @@ import json
 import svgwrite
 import numpy as np
 
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-GITHUB_USERNAME = os.getenv("GITHUB_USERNAME")
+GITHUB_TOKEN = os.getenv("TOKEN")
+GITHUB_USERNAME = os.getenv("USERNAME")
 
 
 def get_contribution_data():
