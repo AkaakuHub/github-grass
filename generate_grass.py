@@ -60,6 +60,9 @@ def generate_svg(contribution_data):
     rest_weeks = weeks_count - display_week_count if weeks_count > display_week_count else weeks_count
     count = 0
 
+    # viewBoxを設定
+    dwg.viewbox(0, 0, 12 * display_week_count + 2, 84 + 2)
+
     # 背景に、グレーでrectを描画
     dwg.add(
         dwg.rect(insert=(0, 0), size=(12 * display_week_count + 2, 84 + 2), fill="#ffffff", rx=2, ry=2)
