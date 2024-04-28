@@ -37,5 +37,5 @@ jobs:
           git config --global user.email "105225777+github-actions@users.noreply.github.com"
           git config --global user.name "AkaakuHub"
           git add .
-          git commit -m "Auto commit by GitHub Actions"
+          git commit -m "Auto commit by GitHub Actions" || exit 0 # ignore error
           git push
