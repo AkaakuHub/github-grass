@@ -42,16 +42,16 @@ def get_contribution_data():
 def generate_svg(contribution_data):
     dwg = svgwrite.Drawing("github-glass.svg", profile="tiny")
     colors = [
-        "#d7d9db",
-        "#c6f9bb",
-        "#9be9a8",
-        "#40e463",
-        "#40c463",
-        "#30b14e",
-        "#30a14e",
-        "#218e39",
-        "#216e39",
-    ]
+    "#d7e3fb",
+    "#bbddf9",  
+    "#a8c9f0",  
+    "#63a4f4",  
+    "#5393e3",  
+    "#4a81d9",  
+    "#3f72cc",  
+    "#2f5db8",  
+    "#1f4799",
+]
 
     display_week_count = 20
     
