@@ -1,12 +1,59 @@
-# generate_contribution_graph.py
 import os
 import requests
 import json
 import svgwrite
-import numpy as np
+import argparse
 
 GITHUB_TOKEN = os.getenv("TOKEN")
 GITHUB_USERNAME = os.getenv("USERNAME")
+
+# カラーパレット定義
+COLOR_PALETTES = {
+    "blue": [
+        "#d7e3fb",
+        "#bbddf9",
+        "#a8c9f0",
+        "#63a4f4",
+        "#5393e3",
+        "#4a81d9",
+        "#3f72cc",
+        "#2f5db8",
+        "#1f4799",
+    ],
+    "red": [
+        "#fdd8d8",
+        "#fbb3b3",
+        "#f99b9b",
+        "#f67878",
+        "#f45555",
+        "#f23333",
+        "#f01111",
+        "#cc0e0e",
+        "#a80b0b",
+    ],
+    "green": [
+        "#d8f5d8",
+        "#b3ebb3",
+        "#9be19b",
+        "#78d778",
+        "#55cd55",
+        "#33c333",
+        "#11b911",
+        "#0e9f0e",
+        "#0b850b",
+    ],
+    "white": [
+        "#ffffff",
+        "#f0f0f0",
+        "#e0e0e0",
+        "#d0d0d0",
+        "#c0c0c0",
+        "#b0b0b0",
+        "#a0a0a0",
+        "#909090",
+        "#808080",
+    ],
+}
 
 
 def get_contribution_data():
@@ -15,19 +62,19 @@ def get_contribution_data():
     query = (
         """
     query {
-      user(login: "%s") {
-        contributionsCollection {
-          contributionCalendar {
-            weeks {
-              contributionDays {
-                contributionCount
-                date
-                weekday
-              }
+        user(login: "%s") {
+            contributionsCollection {
+            contributionCalendar {
+                weeks {
+                contributionDays {
+                    contributionCount
+                    date
+                    weekday
+                }
+                }
             }
-          }
+            }
         }
-      }
     }
     """
         % GITHUB_USERNAME
@@ -39,25 +86,19 @@ def get_contribution_data():
     ]
 
 
-def generate_svg(contribution_data):
+def generate_svg(contribution_data, color_palette="blue"):
     dwg = svgwrite.Drawing("github-glass.svg", profile="tiny")
-    colors = [
-    "#d7e3fb",
-    "#bbddf9",  
-    "#a8c9f0",  
-    "#63a4f4",  
-    "#5393e3",  
-    "#4a81d9",  
-    "#3f72cc",  
-    "#2f5db8",  
-    "#1f4799",
-]
+    colors = COLOR_PALETTES.get(color_palette, COLOR_PALETTES["blue"])
 
     display_week_count = 20
-    
+
     weeks_count = len(contribution_data)
     # 最大30週間分のデータを取得
-    rest_weeks = weeks_count - display_week_count if weeks_count > display_week_count else weeks_count
+    rest_weeks = (
+        weeks_count - display_week_count
+        if weeks_count > display_week_count
+        else weeks_count
+    )
     count = 0
 
     # viewBoxを設定
@@ -65,7 +106,13 @@ def generate_svg(contribution_data):
 
     # 背景に、グレーでrectを描画
     dwg.add(
-        dwg.rect(insert=(0, 0), size=(12 * display_week_count + 2, 84 + 2), fill="#ffffff", rx=2, ry=2)
+        dwg.rect(
+            insert=(0, 0),
+            size=(12 * display_week_count + 2, 84 + 2),
+            fill="#ffffff",
+            rx=2,
+            ry=2,
+        )
     )
 
     for i, week in enumerate(contribution_data):
@@ -100,8 +147,19 @@ def generate_svg(contribution_data):
 
 
 def main():
+    parser = argparse.ArgumentParser(
+        description="GitHubのコントリビューショングラフを生成します"
+    )
+    parser.add_argument(
+        "--color",
+        choices=list(COLOR_PALETTES.keys()),
+        default="blue",
+        help="カラーパレットを選択 (blue, red, green, white)",
+    )
+    args = parser.parse_args()
+
     contribution_data = get_contribution_data()
-    generate_svg(contribution_data)
+    generate_svg(contribution_data, args.color)
 
 
 if __name__ == "__main__":
