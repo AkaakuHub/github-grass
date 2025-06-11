@@ -26,7 +26,7 @@ jobs:
 
       - name: Run script
         run: |
-          python generate_grass.py --color red
+          python generate_grass.py --animated --color red
         env:
           TOKEN: ${{ secrets.TOKEN }}
           USERNAME: ${{ secrets.USERNAME }}
