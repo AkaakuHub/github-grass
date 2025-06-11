@@ -4,7 +4,6 @@ GitHubのコントリビューショングラフを様々な色でアニメー�
 
 ## 特徴
 
-✅ **Python版と100%同じレイアウト**: 元のPythonコードと同じ座標・サイズ・配置を再現  
 ✅ **SMILアニメーション**: ブラウザネイティブのSVGアニメーション  
 ✅ **複数カラーパレット**: blue, red, green, whiteから選択可能  
 ✅ **GitHub Actions対応**: 自動生成とコミット機能  
@@ -95,35 +94,10 @@ src/
 
 `.github/workflows/run.yml`で自動実行が設定されています：
 
-- 毎日15:10 UTCに実行
 - プッシュ時にも実行
-- Node.js 18 + pnpmを使用
 - 生成されたSVGを自動コミット
 
 ## 注意事項
 
 - GitHub APIトークンが必要です
 - プライベートリポジトリのコントリビューションは含まれません
-- SMILアニメーションはブラウザでのみ動作します（GitHubの素のSVG表示では動作しません）
-
-## ライセンス
-
-MIT License
-
-2. Run the script:
-   ```bash
-   python generate_grass.py --color blue
-   ```
-
-## Available Colors
-
-- `blue` (default): Blue gradient
-- `red`: Red gradient
-- `green`: Green gradient
-- `white`: White gradient
-
-## Required Libraries
-
-```bash
-pip install requests svgwrite numpy
-```
