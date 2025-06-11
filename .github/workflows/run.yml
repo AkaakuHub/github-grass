@@ -1,8 +1,10 @@
 name: Generate grass
+
 on:
   push:
   schedule:
     - cron: '10 15 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -15,18 +17,35 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup pnpm
+        id: pnpm-setup
+        uses: pnpm/action-setup@v4
+        continue-on-error: true
+
+      - name: Setup Node.js with pnpm cache
+        if: steps.pnpm-setup.outcome == 'success'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'pnpm'
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: Setup Node.js with npm cache (fallback)
+        if: steps.pnpm-setup.outcome == 'failure'
+        uses: actions/setup-node@v4
         with:
-          version: 9
+          node-version: '20'
+          cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install pnpm globally (fallback)
+        if: steps.pnpm-setup.outcome == 'failure'
+        run: npm install -g pnpm
+
+      - name: Install dependencies with pnpm
+        if: steps.pnpm-setup.outcome == 'success'
+        run: pnpm install --frozen-lockfile
+
+      - name: Install dependencies with pnpm (fallback)
+        if: steps.pnpm-setup.outcome == 'failure'
         run: pnpm install --frozen-lockfile
 
       - name: Build project
@@ -43,5 +62,9 @@ jobs:
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           git add github-glass.svg
-          git commit -m "Auto update GitHub grass chart" || exit 0
-          git push
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto update GitHub grass chart [$(date +'%Y-%m-%d %H:%M:%S')]"
+            git push
+          fi
