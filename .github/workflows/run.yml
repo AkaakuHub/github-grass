@@ -52,7 +52,7 @@ jobs:
         run: pnpm build
 
       - name: Generate grass
-        run: pnpm generate -- --animated --color blue
+        run: pnpm generate -- --animated --color red
         env:
           TOKEN: ${{ secrets.TOKEN }}
           USERNAME: ${{ secrets.USERNAME }}
