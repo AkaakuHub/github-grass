@@ -1,62 +1,114 @@
 # GitHub Grass Generator
 
-GitHubのコントリビューショングラフを様々な色でSVG形式で生成するツールです。
+GitHubのコントリビューショングラフを様々な色でアニメーション付きSVG形式で生成するツールです。TypeScript + D3.jsで実装されています。
+
+## 特徴
+
+✅ **Python版と100%同じレイアウト**: 元のPythonコードと同じ座標・サイズ・配置を再現  
+✅ **SMILアニメーション**: ブラウザネイティブのSVGアニメーション  
+✅ **複数カラーパレット**: blue, red, green, whiteから選択可能  
+✅ **GitHub Actions対応**: 自動生成とコミット機能  
+✅ **高速なTypeScript**: D3.jsとjsdomを使用した効率的な生成  
+
+## セットアップ
+
+### 依存関係のインストール
+```bash
+pnpm install
+```
+
+### プロジェクトのビルド
+```bash
+pnpm build
+```
 
 ## 使い方
 
-1. 環境変数を設定：
-   ```bash
-   export TOKEN=your_github_token
-   export USERNAME=your_github_username
-   ```
+### 1. 環境変数の設定
+```bash
+export TOKEN=your_github_token
+export USERNAME=your_github_username
+```
 
-2. スクリプトを実行：
-   ```bash
-   python generate_grass.py --color blue
-   ```
+### 2. 基本的な使用方法
+```bash
+# デフォルト（青色、アニメーションなし）
+pnpm generate
 
-## その他の機能
+# アニメーション付きで生成
+pnpm generate -- --animated
 
-### 色を変更
+# 緑色でアニメーション付き
+pnpm generate -- --color green --animated
 
-- `blue` (デフォルト): 青系のグラデーション
+# モックデータを使用してテスト
+pnpm generate -- --mock --animated --color red
+```
+
+### 3. テスト用SVG生成
+```bash
+pnpm test
+```
+
+## コマンドオプション
+
+### カラーパレット（`--color`）
+- `blue`（デフォルト）: 青系のグラデーション
 - `red`: 赤系のグラデーション  
 - `green`: 緑系のグラデーション
-- `white`: 白系のグラデーション
+- `white`: 白/グレー系のグラデーション
 
-### アニメーションの追加
-アニメーションを追加するには、`--animated`オプションを使用します。
+### アニメーション（`--animated`）
+- SMILアニメーションを追加します
+- 各矩形が順番にフェードインします
 
-```bash
-python generate_grass.py --color blue --animated
+### モックデータ（`--mock`）
+- GitHub APIを使わずにランダムなテストデータを生成します
+- 開発・テスト用途に便利です
+## ファイル構造
+
+```
+src/
+├── index.ts           # メインエントリーポイント
+├── grass-generator.ts # SVG生成ロジック  
+├── github-api.ts      # GitHub API クライアント
+├── test.ts           # テスト用スクリプト
+├── types/
+│   └── github.ts     # 型定義
+└── const/
+    └── theme.ts      # カラーパレット定義
 ```
 
-### モックデータを使用
-モックデータを使用してグラフを生成するには、`--mock`オプションを使用します。
+## 生成されるファイル
 
-```bash
-python generate_grass.py --color blue --mock
-```
+- `github-glass.svg`: 生成されたコントリビューショングラフ
+- `test-grass.svg`: テスト用に生成されたサンプル
 
-## 必要なライブラリ
+## スクリプト
 
-```bash
-pip install requests svgwrite
-```
+- `pnpm build`: TypeScriptをコンパイル
+- `pnpm start`: メインスクリプトを実行
+- `pnpm generate`: ビルドして実行
+- `pnpm test`: テスト用SVGを生成
 
----
+## GitHub Actions
 
-# GitHub Grass Generator
+`.github/workflows/run.yml`で自動実行が設定されています：
 
-A tool to generate GitHub contribution graphs as SVG files with various color palettes.
+- 毎日15:10 UTCに実行
+- プッシュ時にも実行
+- Node.js 18 + pnpmを使用
+- 生成されたSVGを自動コミット
 
-## Usage
+## 注意事項
 
-1. Set environment variables:
-   ```bash
-   export TOKEN=your_github_token
-   export USERNAME=your_github_username
-   ```
+- GitHub APIトークンが必要です
+- プライベートリポジトリのコントリビューションは含まれません
+- SMILアニメーションはブラウザでのみ動作します（GitHubの素のSVG表示では動作しません）
+
+## ライセンス
+
+MIT License
 
 2. Run the script:
    ```bash
