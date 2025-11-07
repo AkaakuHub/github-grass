@@ -9,6 +9,50 @@ export interface GenerateSvgOptions {
   displayWeekCount?: number;
 }
 
+const TEXT_FONT_FAMILY =
+  '"JetBrains Mono", "Fira Mono", "SFMono-Regular", Menlo, Consolas, monospace';
+
+function hexToRgb(hex: string) {
+  const sanitized = hex.replace("#", "");
+  if (sanitized.length === 3) {
+    const [r, g, b] = sanitized.split("");
+    return {
+      r: parseInt(r + r, 16),
+      g: parseInt(g + g, 16),
+      b: parseInt(b + b, 16),
+    };
+  }
+
+  if (sanitized.length === 6) {
+    return {
+      r: parseInt(sanitized.slice(0, 2), 16),
+      g: parseInt(sanitized.slice(2, 4), 16),
+      b: parseInt(sanitized.slice(4, 6), 16),
+    };
+  }
+
+  return null;
+}
+
+function getRelativeLuminance(hexColor: string): number {
+  const rgb = hexToRgb(hexColor);
+  if (!rgb) return 0.5;
+
+  const [r, g, b] = [rgb.r, rgb.g, rgb.b].map((value) => {
+    const channel = value / 255;
+    return channel <= 0.03928
+      ? channel / 12.92
+      : Math.pow((channel + 0.055) / 1.055, 2.4);
+  });
+
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function getAccessibleTextColor(background: string) {
+  const luminance = getRelativeLuminance(background);
+  return luminance > 0.6 ? "#111827" : "#f8fafc";
+}
+
 export function generateSvg(
   contributionData: ContributionWeek[],
   options: GenerateSvgOptions = {}
@@ -63,16 +107,16 @@ export function generateSvg(
 
     week.contributionDays.forEach((day, j) => {
       const color =
-        colors[Math.min(day.contributionCount, colors.length - 1)];
+        colors[Math.min(day.contributionCount / 2, colors.length - 1)];
       const rect = svg
         .append("rect")
         .attr("x", (i - count) * 12 + 2)
         .attr("y", j * 12 + 2)
         .attr("width", 10)
         .attr("height", 10)
-        .attr("fill", color)
-        .attr("rx", 2)
-        .attr("ry", 2);
+          .attr("fill", color)
+          .attr("rx", 2)
+          .attr("ry", 2);
 
       if (animated) {
         // SMILアニメーション
@@ -90,6 +134,23 @@ export function generateSvg(
           .attr("begin", `${delay}s`)
           .attr("fill", "freeze");
       }
+
+      const contributionLabel = String(day.contributionCount);
+      const digitCount = contributionLabel.length;
+      const fontSize = Math.max(3, 8 - digitCount);
+
+      svg
+        .append("text")
+        .attr("x", (i - count) * 12 + 7)
+        .attr("y", j * 12 + 7.5)
+        .attr("text-anchor", "middle")
+        .attr("dominant-baseline", "middle")
+        .attr("font-size", fontSize)
+        .attr("font-family", TEXT_FONT_FAMILY)
+        .attr("font-weight", digitCount <= 2 ? "600" : "500")
+        .attr("fill", getAccessibleTextColor(color))
+        .attr("pointer-events", "none")
+        .text(contributionLabel);
 
       rectCount++;
     });

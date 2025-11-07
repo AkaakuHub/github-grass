@@ -62,7 +62,7 @@ export class GitHubAPI {
       for (let day = 0; day < 7; day++) {
         const currentDate = new Date(startDate);
         currentDate.setDate(startDate.getDate() + week * 7 + day);
-        const contributionCount = Math.floor(Math.random() * 9); // 0-8のランダム
+        const contributionCount = Math.floor(Math.random() * 51); // 0-50のランダム
 
         contributionDays.push({
           contributionCount,
