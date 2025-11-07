@@ -106,23 +106,31 @@ export function generateSvg(
     }
 
     week.contributionDays.forEach((day, j) => {
-      const color =
-        colors[Math.min(day.contributionCount / 2, colors.length - 1)];
+      const safeContribution = Number.isFinite(day.contributionCount)
+        ? day.contributionCount
+        : 0;
+      const colorIndex = Math.min(
+        Math.max(0, Math.floor(safeContribution / 2)),
+        colors.length - 1
+      );
+      const color = colors[colorIndex];
+      const cellX = (i - count) * 12 + 2;
+      const cellY = j * 12 + 2;
+
       const rect = svg
         .append("rect")
-        .attr("x", (i - count) * 12 + 2)
-        .attr("y", j * 12 + 2)
+        .attr("x", cellX)
+        .attr("y", cellY)
         .attr("width", 10)
         .attr("height", 10)
-          .attr("fill", color)
-          .attr("rx", 2)
-          .attr("ry", 2);
+        .attr("fill", color)
+        .attr("rx", 2)
+        .attr("ry", 2);
+
+      const animationDelay = ((i - count) * 7 + j) * 0.01;
 
       if (animated) {
         // SMILアニメーション
-        const delay = ((i - count) * 7 + j) * 0.01;
-
-        // 初期状態を透明に設定
         rect.attr("opacity", "0");
 
         // opacityアニメーション
@@ -131,7 +139,7 @@ export function generateSvg(
           .attr("from", "0")
           .attr("to", "1")
           .attr("dur", "0.3s")
-          .attr("begin", `${delay}s`)
+          .attr("begin", `${animationDelay}s`)
           .attr("fill", "freeze");
       }
 
@@ -139,10 +147,10 @@ export function generateSvg(
       const digitCount = contributionLabel.length;
       const fontSize = Math.max(3, 8 - digitCount);
 
-      svg
+      const text = svg
         .append("text")
-        .attr("x", (i - count) * 12 + 7)
-        .attr("y", j * 12 + 7.5)
+        .attr("x", cellX + 5)
+        .attr("y", cellY + 5.5)
         .attr("text-anchor", "middle")
         .attr("dominant-baseline", "middle")
         .attr("font-size", fontSize)
@@ -151,6 +159,18 @@ export function generateSvg(
         .attr("fill", getAccessibleTextColor(color))
         .attr("pointer-events", "none")
         .text(contributionLabel);
+
+      if (animated) {
+        text.attr("opacity", "0");
+        text
+          .append("animate")
+          .attr("attributeName", "opacity")
+          .attr("from", "0")
+          .attr("to", "1")
+          .attr("dur", "0.3s")
+          .attr("begin", `${animationDelay}s`)
+          .attr("fill", "freeze");
+      }
 
       rectCount++;
     });
