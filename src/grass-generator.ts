@@ -65,6 +65,16 @@ export function generateSvg(
 
   const colors = COLOR_PALETTES[colorPalette];
   const weeksCount = contributionData.length;
+  const visibleWeeks = contributionData.slice(-displayWeekCount);
+  const contributionCounts = visibleWeeks.flatMap((week) =>
+    week.contributionDays.map((day) =>
+      Number.isFinite(day.contributionCount)
+        ? Math.max(0, day.contributionCount)
+        : 0
+    )
+  );
+  const minContribution = Math.min(...contributionCounts);
+  const maxContribution = Math.max(...contributionCounts);
   console.log(
     `Total weeks: ${weeksCount}, Display weeks: ${displayWeekCount}`
   );
@@ -107,12 +117,16 @@ export function generateSvg(
 
     week.contributionDays.forEach((day, j) => {
       const safeContribution = Number.isFinite(day.contributionCount)
-        ? day.contributionCount
+        ? Math.max(0, day.contributionCount)
         : 0;
-      const colorIndex = Math.min(
-        Math.max(0, Math.floor(safeContribution / 2)),
-        colors.length - 1
-      );
+      const colorIndex =
+        maxContribution === minContribution
+          ? 0
+          : Math.round(
+              ((safeContribution - minContribution) /
+                (maxContribution - minContribution)) *
+                (colors.length - 1)
+            );
       const color = colors[colorIndex];
       const cellX = (i - count) * 12 + 2;
       const cellY = j * 12 + 2;
