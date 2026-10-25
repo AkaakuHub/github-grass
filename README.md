@@ -13,7 +13,7 @@ GitHubデータを取得するには環境変数`TOKEN`と`USERNAME`を設定し
 
 ## オプション
 
-- `--color`: `blue`、`red`、`green`、`white`から選択します。省略時は`blue`です。
+- `--color`: `amber`、`blue`、`red`、`green`、`white`から選択します。省略時は`blue`です。
 - `--animated`: セルを順番に表示するアニメーションを追加します。
 - `--mock`: GitHub APIを使わず、モックデータで生成します。
 

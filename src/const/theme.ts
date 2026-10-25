@@ -18,6 +18,17 @@ export const themes: Record<string, Theme> = {
 };
 
 export const COLOR_PALETTES = {
+  amber: [
+    "#FFF7E0",
+    "#FFE9AD",
+    "#FFD875",
+    "#FFC83D",
+    "#F8B500",
+    "#E59A00",
+    "#C87900",
+    "#9F5900",
+    "#713C00",
+  ],
   blue: [
     "#d7e3fb",
     "#bbddf9",

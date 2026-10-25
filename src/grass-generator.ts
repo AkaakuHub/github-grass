@@ -53,6 +53,22 @@ function getAccessibleTextColor(background: string) {
   return luminance > 0.6 ? "#111827" : "#f8fafc";
 }
 
+function getUpperBound(values: number[], target: number): number {
+  let low = 0;
+  let high = values.length;
+
+  while (low < high) {
+    const middle = Math.floor((low + high) / 2);
+    if (values[middle] <= target) {
+      low = middle + 1;
+    } else {
+      high = middle;
+    }
+  }
+
+  return low;
+}
+
 export function generateSvg(
   contributionData: ContributionWeek[],
   options: GenerateSvgOptions = {}
@@ -72,9 +88,7 @@ export function generateSvg(
         ? Math.max(0, day.contributionCount)
         : 0
     )
-  );
-  const minContribution = Math.min(...contributionCounts);
-  const maxContribution = Math.max(...contributionCounts);
+  ).filter((value) => value > 0).sort((a, b) => a - b);
   console.log(
     `Total weeks: ${weeksCount}, Display weeks: ${displayWeekCount}`
   );
@@ -119,14 +133,22 @@ export function generateSvg(
       const safeContribution = Number.isFinite(day.contributionCount)
         ? Math.max(0, day.contributionCount)
         : 0;
+      const positiveRank = getUpperBound(contributionCounts, safeContribution);
       const colorIndex =
-        maxContribution === minContribution
+        safeContribution === 0
           ? 0
-          : Math.round(
-              ((safeContribution - minContribution) /
-                (maxContribution - minContribution)) *
-                (colors.length - 1)
-            );
+          : contributionCounts[0] === contributionCounts.at(-1)
+            ? Math.ceil((colors.length - 1) / 2)
+            : Math.min(
+                colors.length - 1,
+                Math.max(
+                  1,
+                  Math.ceil(
+                    (positiveRank / contributionCounts.length) *
+                      (colors.length - 1)
+                  )
+                )
+              );
       const color = colors[colorIndex];
       const cellX = (i - count) * 12 + 2;
       const cellY = j * 12 + 2;
