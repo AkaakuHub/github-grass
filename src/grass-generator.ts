@@ -53,22 +53,6 @@ function getAccessibleTextColor(background: string) {
   return luminance > 0.6 ? "#111827" : "#f8fafc";
 }
 
-function getUpperBound(values: number[], target: number): number {
-  let low = 0;
-  let high = values.length;
-
-  while (low < high) {
-    const middle = Math.floor((low + high) / 2);
-    if (values[middle] <= target) {
-      low = middle + 1;
-    } else {
-      high = middle;
-    }
-  }
-
-  return low;
-}
-
 export function generateSvg(
   contributionData: ContributionWeek[],
   options: GenerateSvgOptions = {}
@@ -89,6 +73,15 @@ export function generateSvg(
         : 0
     )
   ).filter((value) => value > 0).sort((a, b) => a - b);
+  const medianContribution =
+    contributionCounts.length === 0
+      ? 0
+      : contributionCounts[Math.floor(contributionCounts.length / 2)];
+  const maxContribution = contributionCounts.at(-1) ?? 0;
+  const logScale =
+    maxContribution > medianContribution * 2
+      ? medianContribution ** 2 / (maxContribution - medianContribution * 2)
+      : medianContribution;
   console.log(
     `Total weeks: ${weeksCount}, Display weeks: ${displayWeekCount}`
   );
@@ -133,21 +126,15 @@ export function generateSvg(
       const safeContribution = Number.isFinite(day.contributionCount)
         ? Math.max(0, day.contributionCount)
         : 0;
-      const positiveRank = getUpperBound(contributionCounts, safeContribution);
       const colorIndex =
         safeContribution === 0
           ? 0
-          : contributionCounts[0] === contributionCounts.at(-1)
+          : medianContribution === maxContribution
             ? Math.ceil((colors.length - 1) / 2)
-            : Math.min(
-                colors.length - 1,
-                Math.max(
-                  1,
-                  Math.ceil(
-                    (positiveRank / contributionCounts.length) *
-                      (colors.length - 1)
-                  )
-                )
+            : Math.round(
+                (Math.log1p(safeContribution / logScale) /
+                  Math.log1p(maxContribution / logScale)) *
+                  (colors.length - 1)
               );
       const color = colors[colorIndex];
       const cellX = (i - count) * 12 + 2;
